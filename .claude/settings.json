@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pio run *)",
+      "PowerShell($pio = Get-Command pio -ErrorAction SilentlyContinue; if \\($pio\\) { $pio.Source } else { $path = \"$env:USERPROFILE\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\"; if \\(Test-Path $path\\) { $path } else { \"not found\" } })",
+      "PowerShell(& \"C:\\\\Users\\\\blues\\\\.platformio\\\\penv\\\\Scripts\\\\pio.exe\" run 2>&1)"
+    ]
+  }
+}
