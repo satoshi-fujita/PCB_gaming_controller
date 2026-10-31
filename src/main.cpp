@@ -1,47 +1,44 @@
+// pio test実行時はテスト側のsetup()/loop()を使うため、アプリ本体のエントリポイントを除外する
+#ifndef PIO_UNIT_TESTING
+
 #include <M5Unified.h>
 #include "GUI.h"
+#include "InputManager.h"
+#include "GameStateMachine.h"
 
-#define TOUCH_PIN1 G5
-#define TOUCH_PIN2 G6
-#define TOUCH_PIN3 G7
-#define TOUCH_PIN4 G8
-
-int touchValue[4] = {0,0,0,0};
-
-GUI gui;    // GUIクラスのインスタンス
+InputManager inputManager;
+GUI gui;
+GameStateMachine game(inputManager, gui);
 
 void setup() {
     auto cfg = M5.config();
     M5.begin(cfg);
 
-    // タッチセンサーの初期値記憶
-    touchValue[0] = touchRead(TOUCH_PIN1);
-    touchValue[1] = touchRead(TOUCH_PIN2);
-    touchValue[2] = touchRead(TOUCH_PIN3);
-    touchValue[3] = touchRead(TOUCH_PIN4);
-
-    // GUI初期化
-    gui.init(touchValue[0], touchValue[1], touchValue[2], touchValue[3]);
-
-    // シリアル通信の初期化
-    USBSerial.begin(115200);
-    while (!USBSerial) { delay(10); } // シリアル接続待ち
-    USBSerial.println("Touch Sensor Test Start");
+    inputManager.begin();
+    gui.init();
+    game.begin();
 }
 
 void loop() {
-    // タッチセンサーの値を読み取る
-    touchValue[0] = touchRead(TOUCH_PIN1);
-    touchValue[1] = touchRead(TOUCH_PIN2);
-    touchValue[2] = touchRead(TOUCH_PIN3);
-    touchValue[3] = touchRead(TOUCH_PIN4);
+    // ボタン/タッチの実サンプリング周期。描画周期(tickDelayMs)とは独立に高速で回し、
+    // 100ms未満の短い押下も取りこぼさずに反応を良くする。
+    const unsigned long BUTTON_POLL_MS = 8;
 
-    // タッチセンサーの値をシリアルモニターに出力
-    USBSerial.printf("Touch Value: %d, %d, %d, %d\n", touchValue[0], touchValue[1], touchValue[2], touchValue[3]);
+    unsigned long frameMs = game.tickDelayMs();
+    int thresholdDelta = game.currentThresholdDelta();
 
-    // GUIを描画
-    gui.drawGUI(touchValue[0], touchValue[1], touchValue[2], touchValue[3]);
+    // このフレーム分の押下を集める前に、前フレームで消費済みのラッチをクリアする
+    inputManager.clearEdges();
 
-    // 少し待機
-    delay(100);
+    // 1フレームの時間を細かく分割してポーリング。押下エッジはInputManager側で
+    // ラッチされ、フレーム末のgame.update()でまとめて消費される。
+    unsigned long frameStart = millis();
+    do {
+        inputManager.update(thresholdDelta);
+        delay(BUTTON_POLL_MS);
+    } while (millis() - frameStart < frameMs);
+
+    game.update();
 }
+
+#endif // PIO_UNIT_TESTING
