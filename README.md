@@ -1,93 +1,99 @@
-# iraira_freeera
+# いらいら棒ゲーム(PCB ゲームコントローラ基板用)
 
+![基板の写真](docs/images/board.jpg)
 
+M5Stack **AtomS3** を取り付けて遊ぶ、ゲームコントローラ基板用の「いらいら棒」ゲームです。
+壁に当たらないようにプレイヤーを操作して、ゴールを目指します。
 
-## Getting started
+## 必要なもの
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- ゲームコントローラ基板(配布品)
+- M5Stack AtomS3(**画面付きモデル**。AtomS3 Lite では動きません)
+- USB Type-C ケーブル(データ通信対応のもの)
+- PC(Windows / macOS / Linux)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 書き込み手順
 
-## Add your files
+### 1. 開発環境を用意する
+1. [Visual Studio Code](https://code.visualstudio.com/) をインストール
+2. VS Code の拡張機能から **PlatformIO IDE** をインストール
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### 2. プログラムをダウンロードする
+このページ上部の緑の **Code** ボタン → **Download ZIP** で保存し、展開します。
+(Git を使える人は `git clone https://github.com/satoshi-fujita/PCB_gaming_controller.git`)
+### 3. 基板の組み立て(はんだ付け)
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/theme32_kiban_meishi_app/iraira_freeera.git
-git branch -M main
-git push -uf origin main
-```
+> [!WARNING]
+> **スイッチ用抵抗の値を変更しています。**
+> 基板のシルク印刷は **1kΩ** となっていますが、これは誤りです。**680kΩ** の抵抗を取り付けてください。
 
-## Integrate with your tools
+### 部品表
 
-* [Set up project integrations](https://gitlab.com/theme32_kiban_meishi_app/iraira_freeera/-/settings/integrations)
+| 部品 | 記号 | 値・型番 | 数量 | 備考 |
+|---|---|---|---|---|
+| 抵抗 | R | **1kΩ** | 1 | LED用　LEDの上の抵抗 |
+| 抵抗 | R | **680kΩ** | 2 | SW用　シルクの「1kΩ」は誤り |
+| LED | LED | OSR50603C1E | 1 | 1608LED 色は何色でも可 |
+| タクトスイッチ | SW1〜SW2 | TVDP01-060CB | 2 | |
+| ピンソケット |  | 4pin |  | AtomS3 取り付け用 |
+| ピンソケット |  | 5pin |  | AtomS3 取り付け用 |
+| マイコン |  | AtomS3 |  | AtomS3Rでも可 |
 
-## Collaborate with your team
+### 取り付け順序
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+背の低い部品から順に付けると、基板が安定して作業しやすくなります。
 
-## Test and Deploy
+1. **抵抗**:向き(極性)はありません。680kΩ であることを確認してから差し込みます
+   (色帯:青・灰・黄・金)
+2. **タクトスイッチ**:穴に合わせて差し込み、基板に浮きがないよう押さえてはんだ付け
+3. **ピンソケット**:AtomS3 を差し込んだ状態ではんだ付けすると、まっすぐ取り付けられます。
+   その場合は AtomS3 に熱が伝わりすぎないよう、手早く作業してください
+4. **LED**:LEDの緑色の部分（カソード）が、シルクのLEDという文字のD（右）に来るように、はんだづけしてください。
 
-Use the built-in continuous integration in GitLab.
+### はんだ付け後のチェック
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+- 隣のパッドとはんだがつながっていない(ブリッジしていない)か
+- はんだが富士山型に、パッド全体になじんでいるか
 
-***
+### 作業時の注意
 
-# Editing this README
+- はんだ付け中に AtomS3 を USB 接続しないでください
+- 作業中は換気をしてください
+- はんだごてのこて先は非常に高温です。使用後はこて台に置き、電源を切ってください
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### 4. 書き込む
+1. VS Code で **ファイル → フォルダーを開く** から、展開したフォルダを開く
+2. AtomS3 を USB ケーブルで PC に接続
+3. 画面下のステータスバーの **→(Upload)** をクリック
+4. 「SUCCESS」と表示されたら完了。AtomS3 を基板に取り付けて遊べます
 
-## Suggestions for a good README
+初回はライブラリのダウンロードで数分かかります。
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 遊び方
+スタート画面
 
-## Name
-Choose a self-explaining name for your project.
+| ボタン | 動作 |
+|---|---|
+| G6 | 上へ移動 |
+| G7 | 下へ移動 |
+| SW2 | スタート / 難易度選択 |
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- 壁に当たるとゲームオーバー
+- 難易度は 3段階
+- 明確なゴールはありません、生存時間を競います
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## うまくいかないとき
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- **書き込みが失敗する / ポートが見つからない**
+  AtomS3 のリセットボタンを約2秒長押しし、内部の緑色LEDが点灯したら(書き込みモード)、もう一度 Upload してください。
+- **PC が AtomS3 を認識しない**
+  充電専用ケーブルの可能性があります。別のケーブルで試してください。
+- **ボタンが反応しない**
+  AtomS3 が基板に奥まで差し込まれているか確認してください。
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## 詳細情報
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+- ピン割り当て:○○
+- 設計資料:[docs/](docs/)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## ライセンス
